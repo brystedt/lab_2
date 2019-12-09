@@ -14,7 +14,11 @@ EPISODES = 1000 #Maximum number of episodes
 #Q function approximation with NN, experience replay, and target network
 class DQNAgent:
     #Constructor for the agent (invoked when DQN is first called in main)
-    def __init__(self, state_size, action_size):
+    def __init__(self,
+                 state_size,
+                 action_size,
+                 random = False):
+        self.random = random
         self.check_solve = False	#If True, stop if you satisfy solution confition
         self.render = False        #If you want to see Cartpole learning, then change to True
 
@@ -75,13 +79,14 @@ class DQNAgent:
         #Insert your e-greedy policy code here
         #Tip 1: Use the random package to generate a random action.
         #Tip 2: Use keras.model.predict() to compute Q-values from the state.
-
-        if np.random.rand() < self.epsilon:
-            action = np.random.choice(self.action_size)
+        if self.random:
+            action = random.randrange(self.action_size)
         else:
-            q = self.target_model.predict(state)
-            action = np.argmax(q[0])
-        #action = random.randrange(self.action_size)
+            if np.random.rand() < self.epsilon:
+                action = np.random.choice(self.action_size)
+            else:
+                q = self.target_model.predict(state)
+                action = np.argmax(q[0])
         return action
 
 ###############################################################################
@@ -117,14 +122,14 @@ class DQNAgent:
         #Insert your Q-learning code here
         #Tip 1: Observe that the Q-values are stored in the variable target
         #Tip 2: What is the Q-value of the action taken at the last state of the episode?
-        
-        #for i in range(self.batch_size): #For every batch
-        #    target[i][action[i]] = random.randint(0,1)
-
-        for i in range(self.batch_size):
-            target[i][action[i]] = reward[i]
-            if not done[i]:
-                target[i][action[i]] += self.discount_factor * np.max(target_val[i])
+        if self.random:
+            for i in range(self.batch_size): #For every batch
+               target[i][action[i]] = random.randint(0,1)
+        else:
+            for i in range(self.batch_size):
+                target[i][action[i]] = reward[i]
+                if not done[i]:
+                    target[i][action[i]] += self.discount_factor * np.max(target_val[i])
 
 ###############################################################################
 ###############################################################################
@@ -145,12 +150,13 @@ class DQNAgent:
         pylab.plot(episodes, scores, 'b')
         pylab.xlabel("Episodes")
         pylab.ylabel("Score")
-        pylab.savefig("scores.png")
+        pylab.savefig("scores_epsilon-greedy.png")
 
 ###############################################################################
 ###############################################################################
 
 if __name__ == "__main__":
+    is_random = True
     #For CartPole-v0, maximum episode length is 200
     env = gym.make('CartPole-v0') #Generate Cartpole-v0 environment object from the gym library
     #Get state and action sizes from the environment
@@ -158,7 +164,7 @@ if __name__ == "__main__":
     action_size = env.action_space.n
 
     #Create agent, see the DQNAgent __init__ method for details
-    agent = DQNAgent(state_size, action_size)
+    agent = DQNAgent(state_size, action_size, random = is_random)
 
     #Collect test states for plotting Q values using uniform random policy
     test_states = np.zeros((agent.test_state_no, state_size))

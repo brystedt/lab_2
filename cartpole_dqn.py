@@ -10,6 +10,11 @@ from keras.models import Sequential
 
 EPISODES = 1000 #Maximum number of episodes
 
+def moving_average(a, n=3) :
+    ret = np.cumsum(a, dtype=float)
+    ret[n:] = ret[n:] - ret[:-n]
+    return np.concatenate((ret[n - 1:], np.full(max(0,len(a) - ret[n - 1:].shape[0]), np.nan)), axis = None) / n
+
 #DQN Agent for the Cartpole
 #Q function approximation with NN, experience replay, and target network
 class DQNAgent:
@@ -150,19 +155,27 @@ class DQNAgent:
     #Plots the score per episode as well as the maximum q value per episode, averaged over precollected states.
     def plot_data(self, episodes, scores, max_q_mean, title = ""):
         pylab.figure(0)
-        pylab.plot(episodes, max_q_mean, 'b')
+        pylab.plot(episodes, max_q_mean, label = title)
         pylab.xlabel("Episodes")
         pylab.ylabel("Average Q Value")
+        pylab.legend()
         pylab.savefig("qvalues" + title + ".png")
-
         pylab.figure(1)
         pylab.plot(episodes, scores, 'b')
+        pylab.plot(episodes, moving_average(scores, 20), 'r', label = 'moving_average')
         pylab.xlabel("Episodes")
         pylab.ylabel("Score")
+        pylab.legend()
         pylab.savefig("scores_epsilon-greedy_" + title + ".png")
+        pylab.close(1)
+###############################################################################
+###############################################################################
 
-###############################################################################
-###############################################################################
+def sign(d):
+    result = ''
+    for key, value in d.items():
+        result = result + key + '_' + str(value) + '_'
+    return result
 
 if __name__ == "__main__":
     is_random = False
@@ -171,16 +184,19 @@ if __name__ == "__main__":
     #Get state and action sizes from the environment
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
-    for number_of_nodes in (16,32,64):
+    params = [{'number_of_nodes': 2**i} for i in range(3, 7)]
+    for param_dict in params:
+    # for number_of_layers in [1,2,3]:
         #Create agent, see the DQNAgent __init__ method for details
         agent = DQNAgent(state_size,
                          action_size,
                          random = is_random,
                          discount_factor=0.95,
                          learning_rate=0.005,
-                         memory_size=1000,
+                         memory_size=3000,
                          target_update_frequency=1,
-                         number_of_layers= 1
+                         number_of_layers= 1,
+                         **param_dict
                          )
 
         #Collect test states for plotting Q values using uniform random policy
@@ -247,4 +263,4 @@ if __name__ == "__main__":
                             print("solved after", e-100, "episodes")
                             agent.plot_data(episodes,scores,max_q_mean[:e+1])
                             sys.exit()
-        agent.plot_data(episodes,scores,max_q_mean,number_of_nodes)
+        agent.plot_data(episodes,scores,max_q_mean,sign(param_dict))

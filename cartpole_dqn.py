@@ -30,7 +30,7 @@ class DQNAgent:
                  memory_size = 1000,
                  target_update_frequency = 1,
                  number_of_layers = 1,
-                 number_of_nodes = 16):
+                 number_of_nodes = 32):
         self.random = random
         self.check_solve = False	#If True, stop if you satisfy solution confition
         self.render = False        #If you want to see Cartpole learning, then change to True
@@ -186,8 +186,10 @@ if __name__ == "__main__":
     #Get state and action sizes from the environment
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
-    param_name = 'number_of_nodes'
-    param_values = [2**i for i in range(3, 8)]
+    # param_name = 'number_of_nodes'
+    # param_values = [2**i for i in range(3, 8)]
+    param_name = 'number_of_layers'
+    param_values = [i for i in range(1,4)]
     params = [{param_name: i} for i in param_values]
     result_mean = []
     result_std = []
@@ -201,7 +203,6 @@ if __name__ == "__main__":
                          learning_rate=0.005,
                          memory_size=3000,
                          target_update_frequency=1,
-                         number_of_layers= 1,
                          **param_dict
                          )
 
@@ -274,7 +275,7 @@ if __name__ == "__main__":
         result_std.append(np.std(scores[-100:]))
     pd.DataFrame({param_name: param_values,
                   'mean': result_mean,
-                  'std': result_std}).to_latex('result.ltx.txt')
+                  'std': result_std}).to_latex('result' + param_name + '.ltx.txt')
     pd.DataFrame({param_name: param_values,
                   'mean'    : result_mean,
-                  'std'     : result_std}).to_csv('result.csv')
+                  'std'     : result_std}).to_csv('result' + param_name + '.csv')

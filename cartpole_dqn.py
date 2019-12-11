@@ -7,6 +7,8 @@ from collections import deque
 from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.models import Sequential
+import pandas as pd
+import os
 
 EPISODES = 1000 #Maximum number of episodes
 
@@ -184,7 +186,11 @@ if __name__ == "__main__":
     #Get state and action sizes from the environment
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
-    params = [{'number_of_nodes': 2**i} for i in range(3, 7)]
+    param_name = 'number_of_nodes'
+    param_values = [2**i for i in range(3, 8)]
+    params = [{param_name: i} for i in param_values]
+    result_mean = []
+    result_std = []
     for param_dict in params:
     # for number_of_layers in [1,2,3]:
         #Create agent, see the DQNAgent __init__ method for details
@@ -264,3 +270,11 @@ if __name__ == "__main__":
                             agent.plot_data(episodes,scores,max_q_mean[:e+1])
                             sys.exit()
         agent.plot_data(episodes,scores,max_q_mean,sign(param_dict))
+        result_mean.append(np.mean(scores[-100:]))
+        result_std.append(np.std(scores[-100:]))
+    pd.DataFrame({param_name: param_values,
+                  'mean': result_mean,
+                  'std': result_std}).to_latex('result.ltx.txt')
+    pd.DataFrame({param_name: param_values,
+                  'mean'    : result_mean,
+                  'std'     : result_std}).to_csv('result.csv')

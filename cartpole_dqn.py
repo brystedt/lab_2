@@ -188,8 +188,12 @@ if __name__ == "__main__":
     action_size = env.action_space.n
     # param_name = 'number_of_nodes'
     # param_values = [2**i for i in range(3, 8)]
-    param_name = 'number_of_layers'
-    param_values = [i for i in range(1,4)]
+    # param_name = 'number_of_layers'
+    # param_values = [i for i in range(1,4)]
+    # param_name = 'discount_factor'
+    # param_values = [0.8,0.9,0.95,0.98,0.99]
+    param_name = 'learning_rate'
+    param_values = [0.05,0.01,0.005,0.001,0.0005]
     params = [{param_name: i} for i in param_values]
     result_mean = []
     result_std = []
@@ -199,8 +203,6 @@ if __name__ == "__main__":
         agent = DQNAgent(state_size,
                          action_size,
                          random = is_random,
-                         discount_factor=0.95,
-                         learning_rate=0.005,
                          memory_size=3000,
                          target_update_frequency=1,
                          **param_dict

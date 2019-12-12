@@ -192,8 +192,10 @@ if __name__ == "__main__":
     # param_values = [i for i in range(1,4)]
     # param_name = 'discount_factor'
     # param_values = [0.8,0.9,0.95,0.98,0.99]
-    param_name = 'learning_rate'
-    param_values = [0.05,0.01,0.005,0.001,0.0005]
+    # param_name = 'learning_rate'
+    # param_values = [0.05,0.01,0.005,0.001,0.0005]
+    param_name = 'target_update_frequency'
+    param_values = [1,2,4,8]
     params = [{param_name: i} for i in param_values]
     result_mean = []
     result_std = []
@@ -204,7 +206,6 @@ if __name__ == "__main__":
                          action_size,
                          random = is_random,
                          memory_size=3000,
-                         target_update_frequency=1,
                          **param_dict
                          )
 

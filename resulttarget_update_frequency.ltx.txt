@@ -1,0 +1,10 @@
+\begin{tabular}{lrrr}
+\toprule
+{} &  target\_update\_frequency &    mean &        std \\
+\midrule
+0 &                        1 &  165.38 &  51.596081 \\
+1 &                        2 &  163.83 &  41.639658 \\
+2 &                        4 &  157.94 &  50.638290 \\
+3 &                        8 &  122.04 &  25.072264 \\
+\bottomrule
+\end{tabular}
